@@ -8,6 +8,7 @@ namespace CoffeeApiV2.Models
 	{
         public int Id { get; set; }
         public int Price { get; set; }
+        public string ?Name { get; set; }
         public List<Category> ?Categories { get; set; }
     }
 }

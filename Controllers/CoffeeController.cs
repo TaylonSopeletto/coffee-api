@@ -41,9 +41,9 @@ namespace CoffeeApiV2.Controllers
             {
                 foreach (CoffeeCategoryDTO category in request.Categories)
                 {
-                    var currentCategory = await _context.Categories.Where(c => c.Id == category.Id).ToListAsync();
+                    var currentCategory = await _context.Categories.Where(c => c.Id == category.Id).FirstOrDefaultAsync();
                     if (newCoffee.Categories != null && currentCategory != null)
-                        newCoffee.Categories.Add(currentCategory[0]);
+                        newCoffee.Categories.Add(currentCategory);
                     await _context.SaveChangesAsync();
                 }
             }
@@ -53,52 +53,44 @@ namespace CoffeeApiV2.Controllers
 
         }
 
-        [HttpGet("Coffee")]
-        public async Task<ActionResult<List<Coffee>>> Get(int coffeeId)
-        {
-            var coffee = await _context.Coffees
-                .Where(c => c.Id == coffeeId)
-                .Include(c => c.Categories)
-                .ToListAsync();
-
-            if (coffee != null)
-                return coffee;
-            else return NotFound();
-
-
-        }
         [HttpGet]
-        public async Task<ActionResult<List<Coffee>>> Get()
+        public async Task<ActionResult<List<Coffee>>> Get(int id)
         {
             var coffees = await _context.Coffees
+                .Where(c => id == 0 || c.Id == id)
                 .Include(c => c.Categories)
                 .ToListAsync();
 
-            return coffees;
-        }
+            if (coffees != null)
+                return coffees;
+            else return NotFound();
+            
+         }
 
         [HttpPut]
         public async Task<ActionResult<Coffee>> Edit(EditCoffeeDTO request)
         {
             var coffee = await _context.Coffees
                 .Where(c => c.Id == request.Id)
-                .Include(c => c.Categories).FirstOrDefaultAsync();
+                .Include(c => c.Categories)
+                .FirstOrDefaultAsync();
+
             if (coffee == null)
                 return NotFound();
 
             coffee.Name = request.Name;
             coffee.Price = request.Price;
             if (coffee.Categories != null)
-             coffee.Categories.RemoveAll(c => 1 == 1);
+                coffee.Categories.RemoveAll(c => 1 == 1);
 
            
             if(request.Categories != null)
             {
                 foreach(CoffeeCategoryDTO category in request.Categories)
                 {
-                    var currentCategory = await _context.Categories.Where(c => c.Id == category.Id).ToListAsync();
+                    var currentCategory = await _context.Categories.Where(c => c.Id == category.Id).FirstOrDefaultAsync();
                         if(coffee.Categories != null && currentCategory != null)
-                        coffee.Categories.Add(currentCategory[0]);
+                        coffee.Categories.Add(currentCategory);
                         await _context.SaveChangesAsync();
                 }
             }
@@ -108,10 +100,10 @@ namespace CoffeeApiV2.Controllers
         }
 
         [HttpDelete]
-        public async Task<ActionResult<Coffee>> Delete(int coffeeId)
+        public async Task<ActionResult<Coffee>> Delete(int id)
         {
             var coffee = await _context.Coffees
-                .Where(c => c.Id == coffeeId)
+                .Where(c => c.Id == id)
                 .Include(c => c.Categories).FirstOrDefaultAsync();
 
             if (coffee == null)
@@ -126,7 +118,6 @@ namespace CoffeeApiV2.Controllers
 
             return NoContent();
          
-
         }
 
         

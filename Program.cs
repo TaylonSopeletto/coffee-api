@@ -1,12 +1,19 @@
 ﻿using CoffeeApiV2.Data;
 using Microsoft.EntityFrameworkCore;
+using DotNetEnv;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+DotNetEnv.Env.Load();
+
+var connectionString = System.Environment.GetEnvironmentVariable("CONNECTION_STRING");
+
 
 // Add services to the container.
 builder.Services.AddDbContext<ApiContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Default"));
+    options.UseNpgsql(connectionString);
 });
 
 builder.Services.AddControllers();

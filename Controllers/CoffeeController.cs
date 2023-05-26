@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using CoffeeApiV2.Data;
 using CoffeeApiV2.Models;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +23,7 @@ namespace CoffeeApiV2.Controllers
             var coffee = new Coffee
             {
                 Name = request.Name,
+                Description = request.Description,
                 Price = request.Price
             };
 
@@ -65,7 +62,7 @@ namespace CoffeeApiV2.Controllers
                 return coffees;
             else return NotFound();
             
-         }
+        }
 
         [HttpPut]
         public async Task<ActionResult<Coffee>> Edit(EditCoffeeDTO request)
@@ -80,6 +77,7 @@ namespace CoffeeApiV2.Controllers
 
             coffee.Name = request.Name;
             coffee.Price = request.Price;
+            coffee.Description = request.Description;
             if (coffee.Categories != null)
                 coffee.Categories.RemoveAll(c => 1 == 1);
 
@@ -107,7 +105,7 @@ namespace CoffeeApiV2.Controllers
                 .Include(c => c.Categories).FirstOrDefaultAsync();
 
             if (coffee == null)
-                NotFound();
+                return NotFound();
 
             if(coffee != null)
             {

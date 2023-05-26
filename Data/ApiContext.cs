@@ -13,6 +13,7 @@ namespace CoffeeApiV2.Data
         public DbSet<Coffee> Coffees { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<CoffeeShop> CoffeeShops { get; set; }
 
     }
 }

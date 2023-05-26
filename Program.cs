@@ -1,6 +1,5 @@
 ﻿using CoffeeApiV2.Data;
 using Microsoft.EntityFrameworkCore;
-using DotNetEnv;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,7 +29,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

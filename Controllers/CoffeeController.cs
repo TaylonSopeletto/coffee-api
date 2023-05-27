@@ -51,16 +51,20 @@ namespace CoffeeApiV2.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Coffee>>> Get(int id)
+        public async Task<ActionResult<List<Coffee>>> Get(int id, string? name, string? category)
         {
-            var coffees = await _context.Coffees
-                .Where(c => id == 0 || c.Id == id)
-                .Include(c => c.Categories)
-                .ToListAsync();
+            var query = _context.Coffees
+            .Where(c => id == 0 || c.Id == id)
+            .Where(c => name == null || c.Name == name);
 
-            if (coffees != null)
-                return coffees;
-            else return NotFound();
+            if (!string.IsNullOrEmpty(category))
+            {
+                query = query
+                    .Where(predicate: c => c.Categories.Any(cat => cat.Name == category));
+            }
+
+            var coffees = await query.Include(c => c.Categories).ToListAsync();
+            return Ok(coffees);
             
         }
 

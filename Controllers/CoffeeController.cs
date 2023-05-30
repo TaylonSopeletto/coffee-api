@@ -50,6 +50,34 @@ namespace CoffeeApiV2.Controllers
 
         }
 
+        [HttpGet("sumProducts")]
+        public async Task<ActionResult<List<CartDTO>>> Get([FromQuery] List<int> ids)
+        {
+            var coffees = await _context.Coffees
+                .Where(c => ids.Contains(c.Id))
+                .Include(c => c.Categories)
+                .ToListAsync();
+
+            int productsPrice = 0;
+
+            foreach (var coffee in coffees)
+            {
+                productsPrice += coffee.Price;
+            }
+
+            double tip = productsPrice * 0.2;
+
+
+            var cart = new CartDTO {
+                Coffees = coffees,
+                ProductsPrice = productsPrice,
+                Tip = productsPrice * 0.2,
+                TotalPrice = Convert.ToInt32(productsPrice + tip)
+            };
+
+            return Ok(cart);
+        }
+
         [HttpGet]
         public async Task<ActionResult<List<Coffee>>> Get(int id, string? name, string? category)
         {

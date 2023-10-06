@@ -3,6 +3,7 @@ using System;
 using CoffeeApiV2.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CoffeeApiV2.Migrations
 {
     [DbContext(typeof(ApiContext))]
-    partial class ApiContextModelSnapshot : ModelSnapshot
+    [Migration("20231006182352_RatingMigration")]
+    partial class RatingMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -105,7 +108,7 @@ namespace CoffeeApiV2.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CoffeeShopId")
+                    b.Property<int?>("CoffeeId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Comment")
@@ -115,14 +118,9 @@ namespace CoffeeApiV2.Migrations
                     b.Property<int>("Star")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CoffeeShopId");
-
-                    b.HasIndex("UserId");
+                    b.HasIndex("CoffeeId");
 
                     b.ToTable("Ratings");
                 });
@@ -165,18 +163,12 @@ namespace CoffeeApiV2.Migrations
 
             modelBuilder.Entity("CoffeeApiV2.Models.Rating", b =>
                 {
-                    b.HasOne("CoffeeApiV2.Models.CoffeeShop", null)
+                    b.HasOne("CoffeeApiV2.Models.Coffee", null)
                         .WithMany("Ratings")
-                        .HasForeignKey("CoffeeShopId");
-
-                    b.HasOne("CoffeeApiV2.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
+                        .HasForeignKey("CoffeeId");
                 });
 
-            modelBuilder.Entity("CoffeeApiV2.Models.CoffeeShop", b =>
+            modelBuilder.Entity("CoffeeApiV2.Models.Coffee", b =>
                 {
                     b.Navigation("Ratings");
                 });

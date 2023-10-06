@@ -3,6 +3,7 @@ using System;
 using CoffeeApiV2.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CoffeeApiV2.Migrations
 {
     [DbContext(typeof(ApiContext))]
-    partial class ApiContextModelSnapshot : ModelSnapshot
+    [Migration("20231006185304_RatingMigrationFixed3")]
+    partial class RatingMigrationFixed3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -165,13 +168,15 @@ namespace CoffeeApiV2.Migrations
 
             modelBuilder.Entity("CoffeeApiV2.Models.Rating", b =>
                 {
-                    b.HasOne("CoffeeApiV2.Models.CoffeeShop", null)
+                    b.HasOne("CoffeeApiV2.Models.CoffeeShop", "CoffeeShop")
                         .WithMany("Ratings")
                         .HasForeignKey("CoffeeShopId");
 
                     b.HasOne("CoffeeApiV2.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
+
+                    b.Navigation("CoffeeShop");
 
                     b.Navigation("User");
                 });

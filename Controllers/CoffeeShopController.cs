@@ -3,6 +3,7 @@ using CoffeeApiV2.DTOs;
 using CoffeeApiV2.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace CoffeeApiV2.Controllers
@@ -31,7 +32,6 @@ namespace CoffeeApiV2.Controllers
             _context.CoffeeShops.Add(coffeeShop);
             await _context.SaveChangesAsync();
 
-            await _context.SaveChangesAsync();
             return Ok(coffeeShop);
 
         }
@@ -41,6 +41,8 @@ namespace CoffeeApiV2.Controllers
         {
             var coffeeShops = await _context.CoffeeShops
                 .Where(c => id == 0 || c.Id == id)
+                .Include(c => c.Ratings)
+                .ThenInclude(r => r.User)
                 .ToListAsync();
 
             if (coffeeShops != null)
@@ -89,6 +91,38 @@ namespace CoffeeApiV2.Controllers
             return NoContent();
 
         }
+
+        [HttpPost("Rate"), Authorize]
+        public async Task<ActionResult<CoffeeShop>> Add(int star, string comment, int shopId )
+        {
+            string userName = User.Identity.Name;
+
+            var user = await _context.Users
+                .Where(c => c.Username == userName)
+                .FirstOrDefaultAsync();
+
+            var shop = await _context.CoffeeShops
+                .Where(c => c.Id == shopId)
+                .Include(c => c.Ratings)
+                .FirstOrDefaultAsync();
+
+            var rating = new Rating
+            {
+                Comment = comment,
+                Star = star,
+                User = user
+            };
+
+            _context.Ratings.Add(rating);
+            await _context.SaveChangesAsync();
+
+            shop.Ratings.Add(rating);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(shop);
+        }
+        
     }
 }
 

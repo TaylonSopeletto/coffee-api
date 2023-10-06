@@ -79,7 +79,7 @@ namespace CoffeeApiV2.Controllers
             return Ok(cart);
         }
 
-        [HttpGet, Authorize]
+        [HttpGet]
         public async Task<ActionResult<List<Coffee>>> Get(int id, string? name, string? category)
         {
             var query = _context.Coffees

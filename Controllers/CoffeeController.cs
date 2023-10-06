@@ -3,6 +3,7 @@ using CoffeeApiV2.Data;
 using CoffeeApiV2.Models;
 using Microsoft.EntityFrameworkCore;
 using CoffeeApiV2.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CoffeeApiV2.Controllers
 {
@@ -78,7 +79,7 @@ namespace CoffeeApiV2.Controllers
             return Ok(cart);
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public async Task<ActionResult<List<Coffee>>> Get(int id, string? name, string? category)
         {
             var query = _context.Coffees

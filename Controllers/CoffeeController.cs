@@ -3,7 +3,7 @@ using CoffeeApiV2.Data;
 using CoffeeApiV2.Models;
 using Microsoft.EntityFrameworkCore;
 using CoffeeApiV2.DTOs;
-using Microsoft.AspNetCore.Authorization;
+
 
 namespace CoffeeApiV2.Controllers
 {
@@ -89,7 +89,7 @@ namespace CoffeeApiV2.Controllers
             if (!string.IsNullOrEmpty(category))
             {
                 query = query
-                    .Where(predicate: c => c.Categories.Any(cat => cat.Name == category));
+                    .Where(predicate: c => c.Categories!.Any(cat => cat.Name == category));
             }
 
             var coffees = await query.Include(c => c.Categories).ToListAsync();

@@ -3,6 +3,7 @@ using System;
 using CoffeeApiV2.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CoffeeApiV2.Migrations
 {
     [DbContext(typeof(ApiContext))]
-    partial class ApiContextModelSnapshot : ModelSnapshot
+    [Migration("20231007192114_RatingMigrationFixed7")]
+    partial class RatingMigrationFixed7
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -124,44 +127,6 @@ namespace CoffeeApiV2.Migrations
                     b.ToTable("CoffeeShops");
                 });
 
-            modelBuilder.Entity("CoffeeApiV2.Models.Order", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AddressId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("PaymentMethod")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ProductsPrice")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("text");
-
-                    b.Property<double>("Tip")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("TotalPrice")
-                        .HasColumnType("double precision");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Orders");
-                });
-
             modelBuilder.Entity("CoffeeApiV2.Models.Rating", b =>
                 {
                     b.Property<int>("Id")
@@ -213,21 +178,6 @@ namespace CoffeeApiV2.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("CoffeeOrder", b =>
-                {
-                    b.Property<int>("CoffeesId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("OrdersId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("CoffeesId", "OrdersId");
-
-                    b.HasIndex("OrdersId");
-
-                    b.ToTable("CoffeeOrder");
-                });
-
             modelBuilder.Entity("CategoryCoffee", b =>
                 {
                     b.HasOne("CoffeeApiV2.Models.Category", null)
@@ -252,21 +202,6 @@ namespace CoffeeApiV2.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CoffeeApiV2.Models.Order", b =>
-                {
-                    b.HasOne("CoffeeApiV2.Models.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId");
-
-                    b.HasOne("CoffeeApiV2.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Address");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("CoffeeApiV2.Models.Rating", b =>
                 {
                     b.HasOne("CoffeeApiV2.Models.CoffeeShop", null)
@@ -278,21 +213,6 @@ namespace CoffeeApiV2.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CoffeeOrder", b =>
-                {
-                    b.HasOne("CoffeeApiV2.Models.Coffee", null)
-                        .WithMany()
-                        .HasForeignKey("CoffeesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CoffeeApiV2.Models.Order", null)
-                        .WithMany()
-                        .HasForeignKey("OrdersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("CoffeeApiV2.Models.CoffeeShop", b =>

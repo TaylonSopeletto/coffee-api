@@ -95,7 +95,7 @@ namespace CoffeeApiV2.Controllers
         [HttpPost("Rate"), Authorize]
         public async Task<ActionResult<CoffeeShop>> Add(int star, string comment, int shopId )
         {
-            string userName = User.Identity.Name;
+            string userName = User!.Identity!.Name!;
 
             var user = await _context.Users
                 .Where(c => c.Username == userName)
@@ -116,7 +116,7 @@ namespace CoffeeApiV2.Controllers
             _context.Ratings.Add(rating);
             await _context.SaveChangesAsync();
 
-            shop.Ratings.Add(rating);
+            shop!.Ratings!.Add(rating);
 
             await _context.SaveChangesAsync();
 

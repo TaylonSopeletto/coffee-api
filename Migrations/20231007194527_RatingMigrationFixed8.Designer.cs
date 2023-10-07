@@ -3,6 +3,7 @@ using System;
 using CoffeeApiV2.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CoffeeApiV2.Migrations
 {
     [DbContext(typeof(ApiContext))]
-    partial class ApiContextModelSnapshot : ModelSnapshot
+    [Migration("20231007194527_RatingMigrationFixed8")]
+    partial class RatingMigrationFixed8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,10 +97,15 @@ namespace CoffeeApiV2.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Price")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
 
                     b.ToTable("Coffees");
                 });
@@ -213,21 +221,6 @@ namespace CoffeeApiV2.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("CoffeeOrder", b =>
-                {
-                    b.Property<int>("CoffeesId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("OrdersId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("CoffeesId", "OrdersId");
-
-                    b.HasIndex("OrdersId");
-
-                    b.ToTable("CoffeeOrder");
-                });
-
             modelBuilder.Entity("CategoryCoffee", b =>
                 {
                     b.HasOne("CoffeeApiV2.Models.Category", null)
@@ -250,6 +243,13 @@ namespace CoffeeApiV2.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CoffeeApiV2.Models.Coffee", b =>
+                {
+                    b.HasOne("CoffeeApiV2.Models.Order", null)
+                        .WithMany("Coffees")
+                        .HasForeignKey("OrderId");
                 });
 
             modelBuilder.Entity("CoffeeApiV2.Models.Order", b =>
@@ -280,24 +280,14 @@ namespace CoffeeApiV2.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CoffeeOrder", b =>
-                {
-                    b.HasOne("CoffeeApiV2.Models.Coffee", null)
-                        .WithMany()
-                        .HasForeignKey("CoffeesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CoffeeApiV2.Models.Order", null)
-                        .WithMany()
-                        .HasForeignKey("OrdersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("CoffeeApiV2.Models.CoffeeShop", b =>
                 {
                     b.Navigation("Ratings");
+                });
+
+            modelBuilder.Entity("CoffeeApiV2.Models.Order", b =>
+                {
+                    b.Navigation("Coffees");
                 });
 #pragma warning restore 612, 618
         }

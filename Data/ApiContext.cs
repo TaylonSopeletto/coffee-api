@@ -15,6 +15,8 @@ namespace CoffeeApiV2.Data
         public DbSet<User> Users { get; set; }
         public DbSet<CoffeeShop> CoffeeShops { get; set; }
         public DbSet<Rating> Ratings { get; set; }
+        public DbSet<Address> Addresses { get; set; }
+        public DbSet<Order> Orders { get; set; }
 
     }
 }

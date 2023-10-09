@@ -21,33 +21,37 @@ namespace CoffeeApiV2.Controllers
         [HttpPost]
         public async Task<ActionResult<Coffee>> Add(EditCoffeeDTO request)
         {
-            var coffee = new Coffee
-            {
-                Name = request.Name,
-                Description = request.Description,
-                Price = request.Price
-            };
+            try
+            {               
+                List<int> categoryIds = request!.Categories!.Select(category => category.Id).ToList();
 
-            _context.Coffees.Add(coffee);
-            await _context.SaveChangesAsync();
+                var categories = await _context.Categories
+                    .Where(c => categoryIds != null && categoryIds.Contains(c.Id))
+                    .Include(c => c.Coffees)
+                    .ToListAsync();
 
-            var newCoffee = await _context.Coffees
-                .Where(c => c.Id == coffee.Id)
-                .Include(c => c.Categories).FirstOrDefaultAsync();
-
-            if (request.Categories != null && newCoffee != null)
-            {
-                foreach (CoffeeCategoryDTO category in request.Categories)
+                if (categories == null || categories.Count == 0)
                 {
-                    var currentCategory = await _context.Categories.Where(c => c.Id == category.Id).FirstOrDefaultAsync();
-                    if (newCoffee.Categories != null && currentCategory != null)
-                        newCoffee.Categories.Add(currentCategory);
-                    await _context.SaveChangesAsync();
+                    return NotFound("No valid categories found.");
                 }
-            }
 
-            await _context.SaveChangesAsync();
-            return coffee;
+                var coffee = new Coffee
+                {
+                    Name = request.Name,
+                    Description = request.Description,
+                    Price = request.Price,
+                    Categories = categories
+                };
+
+                _context.Coffees.Add(coffee);
+                await _context.SaveChangesAsync();
+
+                return Ok(coffee);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
 
         }
 
@@ -100,34 +104,35 @@ namespace CoffeeApiV2.Controllers
         [HttpPut]
         public async Task<ActionResult<Coffee>> Edit(EditCoffeeDTO request)
         {
-            var coffee = await _context.Coffees
-                .Where(c => c.Id == request.Id)
-                .Include(c => c.Categories)
-                .FirstOrDefaultAsync();
-
-            if (coffee == null)
-                return NotFound();
-
-            coffee.Name = request.Name;
-            coffee.Price = request.Price;
-            coffee.Description = request.Description;
-            if (coffee.Categories != null)
-                coffee.Categories.RemoveAll(c => 1 == 1);
-
-           
-            if(request.Categories != null)
+            try
             {
-                foreach(CoffeeCategoryDTO category in request.Categories)
-                {
-                    var currentCategory = await _context.Categories.Where(c => c.Id == category.Id).FirstOrDefaultAsync();
-                        if(coffee.Categories != null && currentCategory != null)
-                        coffee.Categories.Add(currentCategory);
-                        await _context.SaveChangesAsync();
-                }
-            }
+                List<int> categoryIds = request!.Categories!.Select(category => category.Id).ToList();
 
-            await _context.SaveChangesAsync();
-            return coffee;
+                var categories = await _context.Categories
+                    .Where(c => categoryIds != null && categoryIds.Contains(c.Id))
+                    .Include(c => c.Coffees)
+                    .ToListAsync();
+
+                var coffee = await _context.Coffees
+                    .Where(c => c.Id == request.Id)
+                    .Include(c => c.Categories)
+                    .FirstOrDefaultAsync();
+
+                if (coffee == null)
+                    return NotFound();
+
+                coffee.Name = request.Name;
+                coffee.Price = request.Price;
+                coffee.Description = request.Description;
+                coffee.Categories = categories;
+
+                await _context.SaveChangesAsync();
+                return Ok(coffee);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpDelete]

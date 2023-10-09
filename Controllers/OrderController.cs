@@ -1,5 +1,6 @@
 ﻿using CoffeeApiV2.Data;
 using CoffeeApiV2.Models;
+using CoffeeApiV2.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,18 +21,25 @@ namespace CoffeeApiV2.Controllers
         }
 
         [HttpPost, Authorize]
-        public async Task<ActionResult<Order>> Add(List<int> ids)
+        public async Task<ActionResult<Order>> Add(OrderDTO request)
         {
             string userName = User!.Identity!.Name!;
+
+            List<int> coffeeIds = request!.Coffees!.Select(coffee => coffee.Id).ToList();
 
             var user = await _context.Users
                 .Where(c => c.Username == userName)
                 .FirstOrDefaultAsync();
 
             var coffees = await _context.Coffees
-                .Where(c => ids.Contains(c.Id))
+                .Where(c => coffeeIds.Contains(c.Id))
                 .Include(c => c.Categories)
                 .ToListAsync();
+
+            var address = await _context.Addresses
+                .Where(c => c.Id == request!.Address!.Id)
+                .Include(c => c.User)
+                .FirstOrDefaultAsync();
 
             int productsPrice = 0;
             double tip = productsPrice * 0.2;
@@ -44,14 +52,15 @@ namespace CoffeeApiV2.Controllers
 
             var order = new Order
             {
-                PaymentMethod = "CREDIT_CARD",
+                PaymentMethod = request.PaymentMethod,
                 Status = "PROCESSING",
                 User = user,
                 Coffees = coffees,
                 ProductsPrice = productsPrice,
                 Tip = productsPrice * 0.2,
-                TotalPrice = Convert.ToInt32(productsPrice + tip)
-
+                TotalPrice = Convert.ToInt32(productsPrice + tip),
+                Address = address
+                
             };
 
             _context.Orders.Add(order);

@@ -1,5 +1,4 @@
 ﻿using CoffeeApiV2.Data;
-using CoffeeApiV2.DTOs;
 using CoffeeApiV2.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +40,7 @@ namespace CoffeeApiV2.Controllers
         {
             var coffeeShops = await _context.CoffeeShops
                 .Where(c => id == 0 || c.Id == id)
-                .Include(c => c.Ratings)
+                .Include(c => c.Ratings!)
                 .ThenInclude(r => r.User)
                 .ToListAsync();
 

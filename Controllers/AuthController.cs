@@ -40,7 +40,7 @@ namespace CoffeeApiV2.Controllers
         }
 
         [HttpPost("Login")]
-        public ActionResult<User> Login(UserDTO request)
+        public ActionResult<User> Login([FromBody] UserDTO request)
         {
             var user = _context.Users.FirstOrDefault(acc => acc.Username == request.Username);
 
@@ -52,8 +52,12 @@ namespace CoffeeApiV2.Controllers
                 }
 
                 string token = CreateToken(user);
+                var loginResponse = new LoginResponseDTO
+                {
+                    Token = token
+                };
 
-                return Ok(token);
+                return Ok(loginResponse);
             }
             else
             {

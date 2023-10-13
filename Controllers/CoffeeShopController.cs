@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 
-
 namespace CoffeeApiV2.Controllers
 {
     [Route("api/[controller]")]
@@ -53,7 +52,6 @@ namespace CoffeeApiV2.Controllers
         [HttpPut]
         public async Task<ActionResult<CoffeeShop>> Edit(CoffeeShop request)
         {
-
             var coffeeShop = await _context.CoffeeShops
                 .Where(c => c.Id == request.Id)
                 .FirstOrDefaultAsync();

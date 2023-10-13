@@ -4,7 +4,6 @@ using CoffeeApiV2.Models;
 using Microsoft.EntityFrameworkCore;
 using CoffeeApiV2.DTOs;
 
-
 namespace CoffeeApiV2.Controllers
 {
     [Route("api/[controller]")]
@@ -29,11 +28,6 @@ namespace CoffeeApiV2.Controllers
                     .Where(c => categoryIds != null && categoryIds.Contains(c.Id))
                     .Include(c => c.Coffees)
                     .ToListAsync();
-
-                if (categories == null || categories.Count == 0)
-                {
-                    return NotFound("No valid categories found.");
-                }
 
                 var coffee = new Coffee
                 {
@@ -93,7 +87,7 @@ namespace CoffeeApiV2.Controllers
             if (!string.IsNullOrEmpty(category))
             {
                 query = query
-                    .Where(predicate: c => c.Categories!.Any(cat => cat.Name == category));
+                    .Where(c => c.Categories!.Any(cat => cat.Name == category));
             }
 
             var coffees = await query.Include(c => c.Categories).ToListAsync();

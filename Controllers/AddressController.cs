@@ -38,9 +38,6 @@ namespace CoffeeApiV2.Controllers
             {
                 return BadRequest();
             }
-
-            
-                
         }
 
         [HttpPost, Authorize]
@@ -58,15 +55,69 @@ namespace CoffeeApiV2.Controllers
                 PostalCode = request.PostalCode,
                 State = request.State,
                 Street = request.Street,
+                City = request.City,
                 User = user
             };
-
-
 
             _context.Addresses.Add(address);
             await _context.SaveChangesAsync();
 
             return Ok(address);
+
+        }
+
+        [HttpPut, Authorize]
+        public async Task<ActionResult<Address>> Edit(AddressDTO request)
+        {
+            string userName = User!.Identity!.Name!;
+
+            var user = await _context.Users
+                .Where(c => c.Username == userName)
+                .FirstOrDefaultAsync();
+
+            var address = await _context.Addresses
+            .Where(c => c.Id == request.Id)
+            .FirstOrDefaultAsync();
+
+            if(address!.User == user)
+            {
+                address!.PostalCode = request.PostalCode;
+                address!.State = request.State;
+                address!.Street = request.Street;
+                address!.City = request.City;
+
+                await _context.SaveChangesAsync();
+                return Ok(address);
+            }
+            else
+            {
+                return StatusCode(401);
+            }
+        }
+
+        [HttpDelete, Authorize]
+        public async Task<ActionResult<Address>> Delete(int id)
+        {
+            string userName = User!.Identity!.Name!;
+
+            var user = await _context.Users
+                .Where(c => c.Username == userName)
+                .FirstOrDefaultAsync();
+
+            var address = await _context.Addresses
+                .Where(c => c.Id == id)
+                .Include(c => c.User).FirstOrDefaultAsync();
+
+            if(address!.User == user)
+            {
+                _context.Addresses.Remove(address);
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            else
+            {
+                return StatusCode(401);
+            }
 
         }
     }

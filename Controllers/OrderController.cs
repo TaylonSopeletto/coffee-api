@@ -66,7 +66,6 @@ namespace CoffeeApiV2.Controllers
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-
             return Ok(order);
         }
     }

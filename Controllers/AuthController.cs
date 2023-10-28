@@ -6,6 +6,8 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CoffeeApiV2.Controllers
 {
@@ -22,8 +24,10 @@ namespace CoffeeApiV2.Controllers
             _configuration = configuration;
         }
 
+       
+
         [HttpPost("Register")]
-        public ActionResult<User> Register(UserDTO request)
+        public ActionResult<User> Register(LoginDTO request)
         {
             string passwordHash
                 = BCrypt.Net.BCrypt.HashPassword(request.Password);
@@ -31,6 +35,7 @@ namespace CoffeeApiV2.Controllers
             var user = new User();
 
             user.Username = request.Username;
+            user.Role = "user";
             user.PasswordHash = passwordHash;
 
             _context.Users.Add(user);
@@ -40,7 +45,7 @@ namespace CoffeeApiV2.Controllers
         }
 
         [HttpPost("Login")]
-        public ActionResult<User> Login([FromBody] UserDTO request)
+        public ActionResult<User> Login([FromBody] LoginDTO request)
         {
             var user = _context.Users.FirstOrDefault(acc => acc.Username == request.Username);
 
@@ -70,7 +75,8 @@ namespace CoffeeApiV2.Controllers
         {
             List<Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Username)
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, user.Role)
             };
 
             DotNetEnv.Env.Load();

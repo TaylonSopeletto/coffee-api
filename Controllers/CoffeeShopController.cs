@@ -20,104 +20,140 @@ namespace CoffeeApiV2.Controllers
         [HttpPost]
         public async Task<ActionResult<Coffee>> Add(CoffeeShop request)
         {
-            var coffeeShop = new CoffeeShop
+            try
             {
-                Name = request.Name,
-                Rating = request.Rating,
-                City = request.City
-            };
+                var coffeeShop = new CoffeeShop
+                {
+                    Name = request.Name,
+                    Rating = request.Rating,
+                    City = request.City
+                };
 
-            _context.CoffeeShops.Add(coffeeShop);
-            await _context.SaveChangesAsync();
+                _context.CoffeeShops.Add(coffeeShop);
+                await _context.SaveChangesAsync();
 
-            return Ok(coffeeShop);
-
+                return Ok(coffeeShop);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+            
         }
 
         [HttpGet]
         public async Task<ActionResult<List<CoffeeShop>>> Get(int id)
         {
-            var coffeeShops = await _context.CoffeeShops
-                .Where(c => id == 0 || c.Id == id)
-                .Include(c => c.Ratings!)
-                .ThenInclude(r => r.User)
-                .ToListAsync();
+            try
+            {
+                var coffeeShops = await _context.CoffeeShops
+                    .Where(c => id == 0 || c.Id == id)
+                    .Include(c => c.Ratings!)
+                    .ThenInclude(r => r.User)
+                    .ToListAsync();
 
-            if (coffeeShops != null)
-                return coffeeShops;
-            else return NotFound();
-
+                if (coffeeShops != null)
+                    return coffeeShops;
+                else return NotFound();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpPut]
         public async Task<ActionResult<CoffeeShop>> Edit(CoffeeShop request)
         {
-            var coffeeShop = await _context.CoffeeShops
-                .Where(c => c.Id == request.Id)
-                .FirstOrDefaultAsync();
+            try
+            {
+                var coffeeShop = await _context.CoffeeShops
+                   .Where(c => c.Id == request.Id)
+                   .FirstOrDefaultAsync();
 
-            if (coffeeShop == null)
-                return NotFound();
+                if (coffeeShop == null)
+                    return NotFound();
 
-            coffeeShop.Name = request.Name;
-            coffeeShop.Rating = request.Rating;
-            coffeeShop.City = request.City;
+                coffeeShop.Name = request.Name;
+                coffeeShop.Rating = request.Rating;
+                coffeeShop.City = request.City;
 
-            await _context.SaveChangesAsync();
-            return Ok(coffeeShop);
+                await _context.SaveChangesAsync();
+                return Ok(coffeeShop);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+           
         }
 
         [HttpDelete]
         public async Task<ActionResult<CoffeeShop>> Delete(int id)
         {
-            var coffeeShop = await _context.CoffeeShops
-                .Where(c => c.Id == id)
-                .FirstOrDefaultAsync();
-          
-
-            if (coffeeShop == null)
-                return NotFound();
-
-            if (coffeeShop != null)
+            try
             {
-                _context.CoffeeShops.Remove(coffeeShop);
-                await _context.SaveChangesAsync();
+                var coffeeShop = await _context.CoffeeShops
+                    .Where(c => c.Id == id)
+                    .FirstOrDefaultAsync();
+
+
+                if (coffeeShop == null)
+                    return NotFound();
+
+                if (coffeeShop != null)
+                {
+                    _context.CoffeeShops.Remove(coffeeShop);
+                    await _context.SaveChangesAsync();
+                    return NoContent();
+                }
+
                 return NoContent();
             }
-
-            return NoContent();
-
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+   
         }
 
         [HttpPost("Rate"), Authorize]
         public async Task<ActionResult<CoffeeShop>> Add(int star, string comment, int shopId )
         {
-            string userName = User!.Identity!.Name!;
-
-            var user = await _context.Users
-                .Where(c => c.Username == userName)
-                .FirstOrDefaultAsync();
-
-            var shop = await _context.CoffeeShops
-                .Where(c => c.Id == shopId)
-                .Include(c => c.Ratings)
-                .FirstOrDefaultAsync();
-
-            var rating = new Rating
+            try
             {
-                Comment = comment,
-                Star = star,
-                User = user
-            };
+                string userName = User!.Identity!.Name!;
 
-            _context.Ratings.Add(rating);
-            await _context.SaveChangesAsync();
+                var user = await _context.Users
+                    .Where(c => c.Username == userName)
+                    .FirstOrDefaultAsync();
 
-            shop!.Ratings!.Add(rating);
+                var shop = await _context.CoffeeShops
+                    .Where(c => c.Id == shopId)
+                    .Include(c => c.Ratings)
+                    .FirstOrDefaultAsync();
 
-            await _context.SaveChangesAsync();
+                var rating = new Rating
+                {
+                    Comment = comment,
+                    Star = star,
+                    User = user
+                };
 
-            return Ok(shop);
+                _context.Ratings.Add(rating);
+                await _context.SaveChangesAsync();
+
+                shop!.Ratings!.Add(rating);
+
+                await _context.SaveChangesAsync();
+
+                return Ok(shop);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+            
         }
         
     }

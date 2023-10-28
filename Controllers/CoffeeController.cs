@@ -49,49 +49,29 @@ namespace CoffeeApiV2.Controllers
 
         }
 
-        [HttpGet("sumProducts")]
-        public async Task<ActionResult<List<CartDTO>>> Get([FromQuery] List<int> ids)
-        {
-            var coffees = await _context.Coffees
-                .Where(c => ids.Contains(c.Id))
-                .Include(c => c.Categories)
-                .ToListAsync();
-
-            int productsPrice = 0;
-
-            foreach (var coffee in coffees)
-            {
-                productsPrice += coffee.Price;
-            }
-
-            double tip = productsPrice * 0.2;
-
-
-            var cart = new CartDTO {
-                Coffees = coffees,
-                ProductsPrice = productsPrice,
-                Tip = productsPrice * 0.2,
-                TotalPrice = Convert.ToInt32(productsPrice + tip)
-            };
-
-            return Ok(cart);
-        }
 
         [HttpGet]
         public async Task<ActionResult<List<Coffee>>> Get(int id, string? name, string? category)
         {
-            var query = _context.Coffees
-            .Where(c => id == 0 || c.Id == id)
-            .Where(c => name == null || c.Name == name);
-
-            if (!string.IsNullOrEmpty(category))
+            try
             {
-                query = query
-                    .Where(c => c.Categories!.Any(cat => cat.Name == category));
-            }
+                var query = _context.Coffees
+                    .Where(c => id == 0 || c.Id == id)
+                    .Where(c => name == null || c.Name == name);
 
-            var coffees = await query.Include(c => c.Categories).ToListAsync();
-            return Ok(coffees);
+                if (!string.IsNullOrEmpty(category))
+                {
+                    query = query
+                        .Where(c => c.Categories!.Any(cat => cat.Name == category));
+                }
+
+                var coffees = await query.Include(c => c.Categories).ToListAsync();
+                return Ok(coffees);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
             
         }
 
@@ -132,25 +112,29 @@ namespace CoffeeApiV2.Controllers
         [HttpDelete]
         public async Task<ActionResult<Coffee>> Delete(int id)
         {
-            var coffee = await _context.Coffees
+            try
+            {
+                var coffee = await _context.Coffees
                 .Where(c => c.Id == id)
                 .Include(c => c.Categories).FirstOrDefaultAsync();
 
-            if (coffee == null)
-                return NotFound();
+                if (coffee == null)
+                    return NotFound();
 
-            if(coffee != null)
-            {
-                _context.Coffees.Remove(coffee);
-                await _context.SaveChangesAsync();
+                if (coffee != null)
+                {
+                    _context.Coffees.Remove(coffee);
+                    await _context.SaveChangesAsync();
+                    return NoContent();
+                }
+
                 return NoContent();
             }
-
-            return NoContent();
-         
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
-
-        
     }
 }
 

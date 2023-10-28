@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CoffeeApiV2.Controllers
 {
@@ -20,12 +19,13 @@ namespace CoffeeApiV2.Controllers
             _context = context;
         }
 
+
         [HttpGet, Authorize]
         public async Task<ActionResult<Address>> Get()
         {
             string userName = User!.Identity!.Name!;
 
-            if(userName != null)
+            if (userName != null)
             {
                 var addresses = await _context.Addresses
                 .Where(c => c.User!.Username == userName)

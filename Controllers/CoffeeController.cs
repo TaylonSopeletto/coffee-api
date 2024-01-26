@@ -21,21 +21,27 @@ namespace CoffeeApiV2.Controllers
         public async Task<ActionResult<Coffee>> Add(EditCoffeeDTO request)
         {
             try
-            {               
-                List<int> categoryIds = request!.Categories!.Select(category => category.Id).ToList();
-
-                var categories = await _context.Categories
-                    .Where(c => categoryIds != null && categoryIds.Contains(c.Id))
-                    .Include(c => c.Coffees)
-                    .ToListAsync();
+            {
+                List<int> categoryIds;
 
                 var coffee = new Coffee
                 {
                     Name = request.Name,
                     Description = request.Description,
-                    Price = request.Price,
-                    Categories = categories
+                    Price = request.Price
                 };
+
+                if (request.Categories != null)
+                {
+                    categoryIds = request!.Categories!.Select(category => category.Id).ToList();
+
+                    var categories = await _context.Categories
+                    .Where(c => categoryIds != null && categoryIds.Contains(c.Id))
+                    .Include(c => c.Coffees)
+                    .ToListAsync();
+
+                    coffee.Categories = categories;
+                }
 
                 _context.Coffees.Add(coffee);
                 await _context.SaveChangesAsync();

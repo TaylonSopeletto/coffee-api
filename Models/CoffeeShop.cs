@@ -8,6 +8,7 @@ namespace CoffeeApiV2.Models
         public float Rating { get; set; }
         public string? City { get; set; }
         public List<Rating>? Ratings { get; set; }
+        public List<Coffee>? Coffees { get; set; }
     }
 }
 

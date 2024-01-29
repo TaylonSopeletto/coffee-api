@@ -86,13 +86,8 @@ namespace CoffeeApiV2.Controllers
         {
             try
             {
-                List<int> categoryIds = request!.Categories!.Select(category => category.Id).ToList();
-
-                var categories = await _context.Categories
-                    .Where(c => categoryIds != null && categoryIds.Contains(c.Id))
-                    .Include(c => c.Coffees)
-                    .ToListAsync();
-
+                List<int> categoryIds;
+               
                 var coffee = await _context.Coffees
                     .Where(c => c.Id == request.Id)
                     .Include(c => c.Categories)
@@ -101,10 +96,22 @@ namespace CoffeeApiV2.Controllers
                 if (coffee == null)
                     return NotFound();
 
+                if (request.Categories != null)
+                {
+                    categoryIds = request!.Categories!.Select(category => category.Id).ToList();
+                    var categories = await _context.Categories
+                    .Where(c => categoryIds != null && categoryIds.Contains(c.Id))
+                    .Include(c => c.Coffees)
+                    .ToListAsync();
+
+                    coffee.Categories = categories;
+
+                }
+
                 coffee.Name = request.Name;
                 coffee.Price = request.Price;
                 coffee.Description = request.Description;
-                coffee.Categories = categories;
+                
 
                 await _context.SaveChangesAsync();
                 return Ok(coffee);
